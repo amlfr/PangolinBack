@@ -24,7 +24,7 @@ exports.createPangolin = (req, res, next) => {
                     pangolinId: pangolin._id,
                     friends: pangolin.friends,
                     role: pangolin.role,
-                    name: pangoline.name,
+                    name: pangolin.name,
                 })
             )
             .catch((error) => res.status(400).json({ error }));
@@ -40,7 +40,6 @@ exports.loginPangolin = (req, res, next) => {
                     .status(401)
                     .json({ message: "Incorrect credentials" });
             }
-            console.log(pangolin);
             bcrypt
                 .compare(req.body.password, pangolin.password)
 
