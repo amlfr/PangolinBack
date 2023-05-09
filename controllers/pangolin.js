@@ -1,12 +1,14 @@
 const Pangolin = require("../models/pangolin");
 const bcrypt = require("bcrypt");
 
+/* Returns all the pangolins registered  */
 exports.getAllPangolins = (req, res, next) => {
     Pangolin.find()
         .then((pangolins) => res.status(200).json(pangolins))
         .catch((error) => res.status(400).json({ error }));
 };
 
+/* Create a new pangolin after hashing the password and sends back user informations */
 exports.createPangolin = (req, res, next) => {
     bcrypt.hash(req.body.password, 10).then((hash) => {
         const pangolin = new Pangolin({
@@ -22,21 +24,21 @@ exports.createPangolin = (req, res, next) => {
                     pangolinId: pangolin._id,
                     friends: pangolin.friends,
                     role: pangolin.role,
+                    name: pangoline.name,
                 })
             )
             .catch((error) => res.status(400).json({ error }));
     });
-
-    /* onst pangolinObject = JSON.parse(req.body.pangolin); */
 };
 
+/* Verify the credentials and if correct returns user informations */
 exports.loginPangolin = (req, res, next) => {
     Pangolin.findOne({ name: req.body.name })
         .then((pangolin) => {
             if (!pangolin) {
                 return res
                     .status(401)
-                    .json({ message: "Paire login/mot de passe incorrecte" });
+                    .json({ message: "Incorrect credentials" });
             }
             console.log(pangolin);
             bcrypt
@@ -48,10 +50,11 @@ exports.loginPangolin = (req, res, next) => {
                             pangolinId: pangolin._id,
                             friends: pangolin.friends,
                             role: pangolin.role,
+                            name: pangolin.name,
                         });
                     } else {
                         res.status(401).json({
-                            message: "Paire login/mot de passe incorrecte",
+                            message: "Incorrect credentials",
                         });
                     }
                 })
@@ -60,7 +63,8 @@ exports.loginPangolin = (req, res, next) => {
         .catch((error) => res.status(500).json({ error }));
 };
 
-exports.addFriend = (req, res, next) => {
+/* Either add a friend or deletes one depending on whether the users are already friend */
+exports.changeFriend = (req, res, next) => {
     Pangolin.findOne({ _id: req.body.pangolinId }).then((pangolin) => {
         if (pangolin.friends.includes(req.body.friendName)) {
             Pangolin.updateOne(
@@ -88,6 +92,7 @@ exports.addFriend = (req, res, next) => {
     });
 };
 
+/* Updates the role of the user */
 exports.changeRole = (req, res, next) => {
     Pangolin.updateOne(
         { _id: req.body.pangolinId },
